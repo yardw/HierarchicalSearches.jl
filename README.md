@@ -33,8 +33,8 @@ So we can **distinguish** different classes of things by comparing their moduli 
 </div>
 
 - How to get the image of the map?
-    - Aim: Given a class of interested objects $Y_0$, find the corresponding parameter space $X_0$ that can parameterize all the objects in $Y_0$
-    - Procedure:
+    - Function to be realized: Given a class of interested objects $Y_0$, find the corresponding parameter space $X_0$ that can parameterize all the objects in $Y_0$
+    - Algorithm:
         - Prepare a large enough parameter space $X$
         - Parameterize all possible objects $Y$ by using the parameter space $X$. That is, to define an **isomorphic(one-to-one) map** $f$ from $X$ to $Y$
         - Distinguish the interested objects $Y_0$ from possible objects $Y$
@@ -45,6 +45,19 @@ So we can **distinguish** different classes of things by comparing their moduli 
         - `findfirst(isbelongto, f, X , x0)->X'`$\subset$`X0`: A function that scan the parameter space $X$ starting from the point $x_0$ and returns one subset $X'$ of the inverse image $X_0$ of the objects of interest $Y_0$
             - `priori_dfs(X, x0, f, isbelongto)->X'`:A variant of the traditional depth-first searching algorithms that incorporates different priorities for different phase space points. 
         It prioritizes the exploration of higher hierarchy vertices, thereby optimizing the search process in hierarchical graphs
+
+#### Example: Find the moduli space of the solutions of an ordinary differential equation family
+$$
+\begin{cases}
+    F''(x) + c_1(x) F'(x) + c_0(x, m) F(x) = 0,\, x\in[0,1]\\
+    F'(0) + \alpha(F(0)) = 0\\
+    F'(1) + \beta(F(1)) = 0
+\end{cases}
+$$
+where $c_1(x)$ and $c_0(x, m)$ are some functions of $x$, $m$ is a free parameter to parameterize the family of this ODE, and $\alpha$ and $\beta$ are some functions of the value of $F(x)$ at boundaries.
+To find the moduli space of the solutions of this ODE family, we follow the algorithm above:
+- Parameterize all possible solutions of this ODE family by using the parameter space $X$, where $X = \{(F'(0),m) |F'(0)\in \mathbb R,\, m\in\mathbb C\}$
+    - In general, to solve a second order ODE,
 ### Understand the moduli spaces (TODO)
 #### symmetries
 #### topological properties
