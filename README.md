@@ -10,7 +10,7 @@ $\mathbb Z_n$(any integer modulo $n$)
 - All possible ways to wind a circle on a $\mathbb T^2$(Torus) 
 $\to$  
 $\pi(\mathbb T^2) = \mathbb Z^2$(two integers)
-- Solutions of a harmonic oscillator ![HO sol](https://tse3-mm.cn.bing.net/th/id/OIP-C.W6Wl030UJLdNBKeUmpYa1gHaFH?rs=1&pid=ImgDetMain) $\to$ A series of discrete numbers called energy spectrum, or non-negative integers $n$ denoted as particle numbers
+- Solutions of a harmonic oscillator ![HO sol](https://scipython.com/static/media/uploads/blog/sho/sho-psi2-6.png) $\to$ A series of discrete numbers called energy spectrum, or non-negative integers $n$ denoted as particle numbers
 - A free particle solution in QFT $\to$ Spectrum in the phase space of mass, spin, charges, etc.
 - The vacua configurations of a field theory $\to$ Some geometric objects in the space of field profiles(or VEVs(vacuum expectation values) if we assume the translational invariance of vacua)
 ### What is the point of studying moduli spaces?
