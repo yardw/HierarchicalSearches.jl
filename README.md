@@ -57,7 +57,7 @@ So we can **distinguish** different classes of things by comparing their moduli 
     - Implementation:
         - `f(x)->y`: A function that maps a point `x` in the parameter space $X$ to an object `y` in the space of all possible objects $Y$
         - `is_member_of(y, Y0)->{true, false}`: A function that determines whether a given object `y` belongs to `Y0` the class of interested objects $Y_0$
-        - `findfirst(isbelongto, f, X , x0)->X'`$\subset$`X0`: A function that scan the parameter space $X$ starting from the point $x_0$ and returns one subset $X'$ of the inverse image $X_0$ of the objects of interest $Y_0$
+        - `findfirst(is_member_of, f, X , x0)->X'`$\subset$`X0`: A function that scan the parameter space $X$ starting from the point $x_0$ and returns one subset $X'$ of the inverse image $X_0$ of the objects of interest $Y_0$
             - `priori_dfs(X, x0, f, isbelongto)->X'`:A variant of the traditional depth-first searching algorithms that incorporates different priorities for different phase space points. 
         It prioritizes the exploration of higher hierarchy vertices, thereby optimizing the search process in hierarchical graphs
 
