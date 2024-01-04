@@ -1,7 +1,5 @@
 module GoldbergerWiseEoM
 # export paramsearch, M_IR, γ²₀, k, u, ϕP, yₘ, solveODE, getφ, ϕ0
-using DifferentialEquations
-
 module Consts 
     export yₘ, u, ϕP, ϕT, k, M_IR, γ²₀
     # parameters
@@ -17,8 +15,8 @@ module Consts
 end
 
 module AffliatedFunctions
-    using .Consts: yₘ, u, ϕP, ϕT
-    export ϕ0, A, A′, A′′, V, V′, V′′, λP′, λT′, λP′′, λT′′, W, W′
+    using ..Consts: yₘ, u, ϕP, ϕT
+    export ϕ0, A, A′, A′′, V, V′, V′′, λP′, λT′, λP′′, λT′′, W, W′, α
     #static profile
     @inline ϕ0(  y::Number) = ϕP * (ϕT/ϕP)^(y/yₘ) #ϕ0' = -u ϕ0
     @inline A(   y::Number, l²::Number, k::Number, γ²::Number) = k * y + l²/6 * (ϕT/ϕP)^(2y/yₘ)
@@ -39,29 +37,57 @@ module AffliatedFunctions
     W(ϕ, κ, k, u) = 6k/κ^2  - u*ϕ^2
     W′(ϕ, κ, k, u) =        - 2u*ϕ
     V(W, ϕ, κ, k, u) = 1/8 * (W′(ϕ, κ, k, u))^2 - κ^2 / 6 * W(ϕ, κ, k, u)^2
+
+    # for convenience
+    α(l²) = 3/2/(l²*u)
 end # module AffliatedVariables
 
 module EoMs
-    using .Consts: u
-    using .AffliatedFunctions: A, A′, A′′
-    export P, Q
+    using ..Consts: u, ϕP, yₘ
+    using ..AffliatedFunctions: A, A′, A′′, α
+    export P, Q, RR, SS
     # F'' + P F' + Q F = 0
     """
         P
     P for the EoM: F'' + P F' + Q F = 0
     """
-    P(y, l², k, γ²₀) = 2u - 2A′(y, l², k, γ²₀)
+    P(y, l², k, γ²₀, m²) = 2u - 2A′(y, l², k, γ²₀)
+    P(y, params) = P(y, params...)
     """
         Q
     Q for the EoM: F'' + P F' + Q F = 0
     """
     Q(y, l², k, γ²₀, m²) = m² * exp(2A(y, l², k, γ²₀)) - 4A′′(y, l², k, γ²₀) - 4u*A′(y, l², k, γ²₀)
+    Q(y, params) = Q(y, params...)
+    
+    # \varphi 'P = \phi_P * (  (R1-P)F' + (S1-Q)F  )
+    R1(y, l², k, γ²₀, m²) = u - 2A′(y, l², k, γ²₀)
+    R1(y,params) = R1(y, params...)
+    S1(y, l², k, γ²₀, m²) = exp(-2u*y) / α(l²) - 2k - 2A(y, l², k, γ²₀) * u
+    S1(y,params) = S1(y, params...)
+    # \varphi 'T =  RR * F'T + SS * FT
+    """
+        RR
+    RR for the EoM: varphi'T =  RR * F'T + SS * FT
+    """
+    RR(params) = (R1(yₘ,params) - P(yₘ,params))*ϕP
+    """
+        SS
+    SS for the EoM: varphi'T =  RR * F'T + SS * FT
+    """
+    SS(params) = (S1(yₘ,params) - Q(yₘ,params))*ϕP
+    """
+        getφ′T
+    given the value of F and F′ at the TeV brane(obtained by solving ODEs), return φ′ at TeV brane wrt the bulk equation of φ
+    """
+    getφ′T(FT, F′T, params) = RR(params)*F′T + SS(params)*FT
 end
 
 module BCs
-    using .Consts: u, ϕP, ϕT, yₘ
-    using .AffliatedFunctions
-    export dφP, dφT, dFP, dFT
+    using ..Consts: u, ϕP, ϕT, yₘ
+    using ..AffliatedFunctions
+    using ..EoMs: getφ′T
+    export dφT, dFP, Δφ′T #, dFT, dφP, 
     #BCs
     # non-perturbative gamma:
     """
@@ -69,153 +95,48 @@ module BCs
     given the value of F and φ at the Plank brane, return φ′ at Plank brane
     """
     @inline dφP(φ, F, l², k, γ²) = 0.5λP′′(φ, l², k, γ²) * φ - 2u * ϕP * F  #(3.14)
+
+
+    φT(FT, F′T, l², k, γ²)  = -3ϕP^2/(2u*l²*ϕ0(yₘ)) * (F′T - 2A′(yₘ, l², k, γ²)*FT)  #(3.12)
     """
-        dφT
-    given the value of F and φ at the TeV brane, return φ′ at TeV brane
+    dφT
+    given the value of F and F′ at the TeV brane, return φ′ satisfying the BC at TeV brane
     """
-    @inline dφT(φ, F, l², k, γ²) =-0.5λT′′(φ, l², k, γ²) * φ - 2u * ϕT * F  #(3.14)
-    @inline dFP(φ, F, l², k, γ²) = 2A′(0 , l², k, γ²)*F - 2u*l²*ϕ0(0)/ϕP^2/3 * φ # same as the bulk equation of φ (3.12)
-    @inline dFT(φ, F, l², k, γ²) = 2A′(yₘ, l², k, γ²)*F - 2u*l²*ϕ0(yₘ)/ϕP^2/3 * φ
+    function dφT(F, F′, l², k, γ², m²) 
+        φ = φT(F, F′, l², k, γ²)
+        return -0.5λT′′(φ, l², k, γ²) * φ - 2u * ϕT * F  #(3.14)
+    end
+    dφT(F, F′, params) = dφT(F, F′, params...)
+
+    function Δφ′T(F, F′, params)
+        φ′T = dφT(F, F′, params...)
+        return φ′T - getφ′T(F, F′, params)
+    end
+
+
+    # dφT(φ, F, l², k, γ²) =-0.5λT′′(φ, l², k, γ²) * φ - 2u * ϕT * F  #(3.14)
+
+    # @inline dFP(φ, F, l², k, γ²) = 2A′(0 , l², k, γ²)*F - 2u*l²*ϕ0(0)/ϕP^2/3 * φ # same as the bulk equation of φ (3.12)
+    # @inline dFT(φ, F, l², k, γ²) = 2A′(yₘ, l², k, γ²)*F - 2u*l²*ϕ0(yₘ)/ϕP^2/3 * φ
+
+
+    # FP' + a F = 0
+    a(l², k, γ², m²) = ( 
+        1/(α(l²)*γ²)
+        *
+        (-2k - exp(2A(0, l², k, γ²)) * m² + 1/α(l²) + u - 2A(0, l², k, γ²)*u + 4u*A(0, l², k, γ²) + 4A′′(0, l², k, γ²) )
+        - 
+        2A(0, l², k, γ²)
+        )/(
+        1 - 1/(α(l²)*γ²)*u
+        )
+    """
+        dFP
+    given the value of F at the Plank brane, return F′ satisfying the BC at Plank brane
+    """
+    dFP(FP, l², k, γ², m²) = a(l², k, γ², m²)*FP
+    dFP(FP, params) = dFP(FP, params...)
 
 end # module BCs
 
-# EoM of φ, obtained from the zero solution of the Einstein eq #(3.12)
-function getφ(solF::ODESolution, params) 
-    _, l², γ²= params
-    F(y::Number)  = solF(y)[2]
-    F′(y::Number) = solF(y)[1]
-    φ(y::Number)  = -3ϕP^2/(2u*l²*ϕ0(y)) * (F′(y) - 2A′(y, l², k, γ²)*F(y))  #(3.12)
-    return φ
-end
-function getφ(m2, l2, g2; FP=1., φP=1.)
-    params = (m2, l2, g2)
-    Fsol = eom.solveODE(FP, φP, params)
-    eom.getφ(Fsol, params)
-end
-
-# EoM of F(perturbation on redshift factor A in metric)
-function radionSpectrum_secondOrder!(ddf, df, f, params, y)
-    F  = f[1]
-    F′ = df[1]
-    mF2, l², γ²= params
-    dF′ = 2A′(y, l², k, γ²)*F′ + 4A′′(y, l², k, γ²)*F - 2u*F′ + 4u*A′(y, l², k, γ²)*F - mF2 * exp(2A(y, l², k, γ²))*F #(3.17)
-    ddf[1]=dF′
-end
-# EoM of F(perturbation up to first order of l^2 and gamma^2)
-function radionSpectrum_pert_secondOrder!(ddf, df, f, params, y)
-    mF2, l², γ²= params
-    M⁰₀, M¹₀, M⁰₁, M¹₁ = mF2
-    F⁰₀, F¹₀, F⁰₁, F¹₁ = f
-    F⁰₀′, F¹₀′, F⁰₁′, F¹₁′ = df
-
-    dF⁰₀′ = -2(u-k)*F⁰₀′ + 4k*u*F⁰₀ - M⁰₀*exp(2k*y)*F⁰₀
-    dF¹₀′ = -2(u-k)*F¹₀′ + 4k*u*F¹₀ - M¹₀*exp(2k*y)*F⁰₀ - 2u/3*exp(-2u*y)*(F⁰₀′-2u*F⁰₀)
-    dF⁰₁′ = -2(u-k)*F⁰₁′ + 4k*u*F⁰₁ - M⁰₁*exp(2k*y)*F⁰₀
-    dF¹₁′ = -2(u-k)*F¹₁′ + 4k*u*F¹₁ - M¹₁*exp(2k*y)*F⁰₀ - M¹₀*exp(2k*y)*F⁰₁ - 2u/3*exp(-2u*y)*(F⁰₁′-2u*F⁰₁)
-
-    ddf[1], ddf[2], ddf[3], ddf[4] = dF⁰₀′, dF¹₀′, dF⁰₁′, dF¹₁′
-end
-
-
-
-function solveODE(FP, φP, params)
-    _, l², γ²= params
-    yspan = (0.0,yₘ)
-    F′P= dFP(φP, FP, l², k, γ²)
-    prob = SecondOrderODEProblem(radionSpectrum_secondOrder!,[F′P], [FP],yspan, params)
-    # return solve(prob, Tsit5())
-    return solve(prob, ImplicitEuler())
-    # return solve(prob, Rosenbrock23())
-end
-function solveODE(settings::Settings, params)
-    model_type = settings.model_type
-    eom = nothing
-    if model_type == Unperturbed
-        eom = radionSpectrum_secondOrder!
-    elseif model_type == Perturbed00to11Order
-        eom = radionSpectrum_pert_secondOrder!
-    else
-        error("Unknown model type.")
-    end
-    error("Not implemented yet: solveODE for Settings inputs.")
-end
-
-function calculateΔφT(Fsol, params)
-    _, l², γ²= params
-    _, FT = Fsol(yₘ)
-    φ = getφ(Fsol, params)
-    φT = φ(yₘ)
-    ys = range(yₘ*(1-1e-6) , yₘ, 2)
-    φ′T = (diff(φ.(ys))/diff(ys))[1]
-    # return (dφT(φT, FT, l², k, γ²) + φ′T)/sqrt((λT′′(0, l², k, γ²)/2)^2+ λT′(φT, l², k, γ² )^2+1)
-    return dφT(φT, FT, l², k, γ²) + φ′T
-    # return (dφT(φT, FT, l², k, γ²) + φ′T)/sqrt((λT′′(0, l², k, γ²)/2)^2+ λT′(0, l², k, γ² )^2+1)
-end
-
-function errBCwithφ(FP, params; φP = 1.)
-    Fsol = solveODE(FP, φP, params)
-    return calculateΔφT(Fsol, params)
-end
-
-function paramsearch(;l2=nothing, g2=nothing, FP = 1., φP = 1.)
-    if !isnothing(g2) && isnothing(l2)
-        function paramsearch_l2_m2(l2, m2)
-            params = (m2, l2, g2)
-            return errBCwithφ(FP, params, φP = φP )
-        end
-        return paramsearch_l2_m2
-    elseif isnothing(g2) && !isnothing(l2)
-        function paramserch_g2_m2(g2, m2)
-            params = (m2, l2, g2)
-            return errBCwithφ(FP, params, φP = φP)
-        end
-        return paramserch_g2_m2
-    end
-end
-"""
-    getseq(bounds, islogscaled, n = 100)
-    return a sequence of n numbers between bounds, either linearly or logarithmically spaced
-# Arguments
-- `bounds::Tuple{Number, Number}`: the lower and upper bounds of the sequence
-- `islogscaled::Bool`: whether the sequence is logarithmically or linearly spaced
-- `n::Int`: the number of elements in the sequence
-# Examples
-```julia
-julia> getseq((1, 10), true, 5)
-5-element Array{Float64,1}:
-  1.0
-  2.51188643150958
-  6.309573444801933
- 15.848931924611133
- 39.810717055349734
- ```
-"""
-function getseq(bounds::Tuple{Number,Number}, islogscaled::Bool, n = 100)
-    if islogscaled
-        exp10.(range(log10.(bounds)..., n))
-    else
-        range(bounds..., n)
-    end
-end
-"""
-    get_g2_m2_perturb_analytic_sol(s::eom.Settings; g2_logscaled = true)
-    return a sequence of analytic solutions of γ² and m² to the 0-1 order perturbed Goldberger-Wise model.
-# Arguments
-- `s::eom.Settings`: the settings of the model
-- `g2_logscaled::Bool`: whether the sequence of γ² is logarithmically or linearly spaced
-# Examples
-```julia
-julia> get_g2_m2_perturb_analytic_sol(settings)
-2-element Tuple{Array{Float64,1},Array{Float64,1}}:
- [0.001, 10.0]
- [1.0e-6, 0.1]
- ```
-"""
-function get_g2_m2_perturb_analytic_sol(s::Settings; g2_logscaled = true)
-    l2 = s.l2; g2 = s.g2; u = s.u, k = s.k, yₘ = s.yₘ
-    @assert l2 isa Number && g2 isa Tuple{Number, Number} "l² should be specified as a number, and γ² should be a range serving as the lower and upper bounds of γ²."
-    g2s = getseq(g2, g2_logscaled)
-    m2s = 4l2*(2k+u)*u^2/(3k)*(1-exp(2k*yₘ))/(1-exp((4k+2u)*yₘ)) * (1 .- (4k+2u) ./g2s)
-    return g2s, m2s
-end
 end # module GoldbergerWiseEoM
