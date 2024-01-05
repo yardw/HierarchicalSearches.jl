@@ -51,19 +51,19 @@ module EoMs
         P
     P for the EoM: F'' + P F' + Q F = 0
     """
-    P(y, l², k, γ²₀, m²) = 2u - 2A′(y, l², k, γ²₀)
+    P(y, l², k, γ², m²) = 2u - 2A′(y, l², k, γ²)
     P(y, params) = P(y, params...)
     """
         Q
     Q for the EoM: F'' + P F' + Q F = 0
     """
-    Q(y, l², k, γ²₀, m²) = m² * exp(2A(y, l², k, γ²₀)) - 4A′′(y, l², k, γ²₀) - 4u*A′(y, l², k, γ²₀)
+    Q(y, l², k, γ², m²) = m² * exp(2A(y, l², k, γ²)) - 4A′′(y, l², k, γ²) - 4u*A′(y, l², k, γ²)
     Q(y, params) = Q(y, params...)
     
     # \varphi 'P = \phi_P * (  (R1-P)F' + (S1-Q)F  )
-    R1(y, l², k, γ²₀, m²) = u - 2A′(y, l², k, γ²₀)
+    R1(y, l², k, γ², m²) = u - 2A′(y, l², k, γ²)
     R1(y,params) = R1(y, params...)
-    S1(y, l², k, γ²₀, m²) = exp(-2u*y) / α(l²) - 2k - 2A(y, l², k, γ²₀) * u
+    S1(y, l², k, γ², m²) = exp(-2u*y) / α(l²) - 2k - 2A(y, l², k, γ²) * u
     S1(y,params) = S1(y, params...)
     # \varphi 'T =  RR * F'T + SS * FT
     """
