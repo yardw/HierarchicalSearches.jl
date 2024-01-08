@@ -3,7 +3,7 @@ Find, understand and visualize the moduli spaces of your favorite class of objec
 ## What is a moduli space?
 An isomorphic space of a class of objects, naively speaking.
 ### Examples
-- All the possible(or an infinite number of) poison dart frogs in the world  $\to$ A hyperplane in the space of traits of poison dart frogs
+- All the possible(or an infinite number of) poison dart frogs in the world  $\to$ A subregion in the space of traits of poison dart frogs
 
 <div align="center">
     <img src="assets/Colorful-poison-dart-frogs.jpg" width="40%" title="Cited from https://www.pestwiki.com/">
@@ -57,9 +57,13 @@ So we can **distinguish** different classes of things by comparing their moduli 
     - Implementation:
         - `f(x)->y`: A function that maps a point `x` in the parameter space $X$ to an object `y` in the space of all possible objects $Y$
         - `isa(y, Y0)->{true, false}`: A function that determines whether a given object `y` belongs to `Y0` the class of interested objects $Y_0$
-        - `findfirst(f, X , x0)->X'`$\subset$`X0`: A function that scan the parameter space $X$ starting from the point $x_0$ and returns one subset $X'$ of the inverse image $X_0$ of the objects of interest $Y_0$
-            - `priori_dfs(X, x0, f)->X'`:A variant of the traditional depth-first searching algorithms that incorporates different priorities for different phase space points. 
-        It prioritizes the exploration of higher hierarchy vertices, thereby optimizing the search process in hierarchical graphs
+        - `findfirst(f, X , x0, Y0)->X'`$\subset$`X0`: A function that scan the parameter space $X$ starting from the point $x_0$ and returns one subset $X'$ of the inverse image $X_0$ of the objects of interest $Y_0$
+            - `priori_dfs(f, X, x0, Y0)->X'`:A variant of the traditional depth-first searching algorithms that incorporate different priorities for different phase space points. 
+        It prioritizes the exploration of higher hierarchy phase space points, thereby optimizing the search process in hierarchical graphs.
+    - Data Organization
+        - `SimplexGraph`: A type that contains all necessary information of a class of objects.
+            - `ParamSpace <: Graph`: A type 
+        - `Element`
 
 #### Example: Find the moduli space of the solutions of an ODE family with the Robin boundary conditions
 $$
