@@ -80,6 +80,10 @@ where $a_1(x)$ and $a_0(x, m)$ are some functions of $x$, $m$ is a free paramete
 To find the moduli space of the solutions of this ODE family, we follow the algorithm above:
 - Parameterize all possible solutions of this ODE family by using the parameter space $X$, where $X = \{(F'(0),m) |F'(0)\in \mathbb R,\, m\in\mathbb C\}$
     - In general, to solve a second-order ODE,
+- Technical Sidenotes
+    - where should we start shooting?
+        - In some cases, neither $y=0$ nor $y=y_m$ are not good starting points. It is because the solution $F$ contains the exponential function, which is very sensitive to the initial conditions. Therefore, the numerical error will be amplified exponentially if we do so.
+        - For these cases, an optimized choice is to start from a middle point which takes the balance of exponential growth and decay into account. Practically, we can start from $\frac{y_m}{2}$ and grab a experimental solution. Then we find the maximum of the solution and use it as the starting point if it is needed.
 ### Understand the moduli spaces (TODO)
 #### symmetries
 #### topological properties
