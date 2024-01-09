@@ -57,13 +57,15 @@ So we can **distinguish** different classes of things by comparing their moduli 
     - Implementation:
         - `f(x)->y`: A function that maps a point `x` in the parameter space $X$ to an object `y` in the space of all possible objects $Y$
         - `isa(y, Y0)->{true, false}`: A function that determines whether a given object `y` belongs to `Y0` the class of interested objects $Y_0$
-        - `findfirst(f, X , x0, Y0)->X'`$\subset$`X0`: A function that scan the parameter space $X$ starting from the point $x_0$ and returns one subset $X'$ of the inverse image $X_0$ of the objects of interest $Y_0$
+        - `findfirst(x0, alg=priori_dfs(f, X , x0, Y0))->X'`$\subset$`X0`: A function that scan the parameter space $X$ starting from the point $x_0$ and returns one subset $X'$ of the inverse image $X_0$ of the objects of interest $Y_0$
             - `priori_dfs(f, X, x0, Y0)->X'`:A variant of the traditional depth-first searching algorithms that incorporate different priorities for different phase space points. 
         It prioritizes the exploration of higher hierarchy phase space points, thereby optimizing the search process in hierarchical graphs.
     - Data Organization
-        - `SimplexGraph`: A type that contains all necessary information of a class of objects.
-            - `ParamSpace <: Graph`: A type 
-        - `Element`
+        - `SimplexGraph`: A type that discretizes the parameter space $X$ into a hierarchical graph
+            - `paramspace(labels...)->x0`
+            - `f(x0)->y0`
+            - `objclass`
+        - `GraphElement`
 
 #### Example: Find the moduli space of the solutions of an ODE family with the Robin boundary conditions
 $$
@@ -77,7 +79,7 @@ $$
 where $a_1(x)$ and $a_0(x, m)$ are some functions of $x$, $m$ is a free parameter to parameterize the family of this ODE, and $a$ and $b$ are some constants.
 To find the moduli space of the solutions of this ODE family, we follow the algorithm above:
 - Parameterize all possible solutions of this ODE family by using the parameter space $X$, where $X = \{(F'(0),m) |F'(0)\in \mathbb R,\, m\in\mathbb C\}$
-    - In general, to solve a second order ODE,
+    - In general, to solve a second-order ODE,
 ### Understand the moduli spaces (TODO)
 #### symmetries
 #### topological properties

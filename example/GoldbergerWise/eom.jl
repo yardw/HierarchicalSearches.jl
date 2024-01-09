@@ -45,7 +45,7 @@ end # module AffliatedVariables
 module EoMs
     using ..Consts: u, ϕP, yₘ
     using ..AffliatedFunctions: A, A′, A′′, α
-    export P, Q, RR, SS
+    export P, Q, RR, SS, getφ′T, getφ′P
     # F'' + P F' + Q F = 0
     """
         P
@@ -70,34 +70,49 @@ module EoMs
         RR
     RR for the EoM: varphi'T =  RR * F'T + SS * FT
     """
-    RR(params) = (R1(yₘ,params) - P(yₘ,params))*ϕP
+    RR(params, y) = (R1(y,params) - P(y,params))*ϕP
     """
         SS
     SS for the EoM: varphi'T =  RR * F'T + SS * FT
     """
-    SS(params) = (S1(yₘ,params) - Q(yₘ,params))*ϕP
+    SS(params, y) = (S1(y,params) - Q(y,params))*ϕP
     """
         getφ′T
     given the value of F and F′ at the TeV brane(obtained by solving ODEs), return φ′ at TeV brane wrt the bulk equation of φ
     """
-    getφ′T(FT, F′T, params) = RR(params)*F′T + SS(params)*FT
+    getφ′T(FT, F′T, params) = RR(params, yₘ)*F′T + SS(params, yₘ)*FT
+    """
+    getφ′P
+    given the value of F and F′ at the Plank brane(obtained by solving ODEs), return φ′ at Plank brane wrt the bulk equation of φ
+    """
+    getφ′P(FP, F′P, params) = RR(params, 0)*F′P + SS(params, 0)*FP
 end
 
 module BCs
     using ..Consts: u, ϕP, ϕT, yₘ
     using ..AffliatedFunctions
-    using ..EoMs: getφ′T
-    export dφT, dFP, Δφ′T #, dFT, dφP, 
+    using ..EoMs: getφ′T, getφ′P
+    export dφT, dFP, Δφ′T, Δφ′P #, dFT, dφP, 
     #BCs
     # non-perturbative gamma:
     """
         dφP
-    given the value of F and φ at the Plank brane, return φ′ at Plank brane
+    given the value of F and F′ at the Plank brane, return φ′ wrt to the BC at Plank brane
     """
-    @inline dφP(φ, F, l², k, γ²) = 0.5λP′′(φ, l², k, γ²) * φ - 2u * ϕP * F  #(3.14)
-
-
-    φT(FT, F′T, l², k, γ²)  = -3ϕP^2/(2u*l²*ϕ0(yₘ)) * (F′T - 2A′(yₘ, l², k, γ²)*FT)  #(3.12)
+    function dφP(F, F′, l², k, γ², m²)
+        φ = φP(F, F′, l², k, γ²)
+        return 0.5λP′′(φ, l², k, γ²) * φ - 2u * ϕP * F  #(3.14)
+    end
+    dφP(F, F′, params) = dφP(F, F′, params...)
+    φP(FT, F′T, l², k, γ²)  = -3ϕP^2/(2u*l²*ϕ0(0)) * (F′T - 2A′(0, l², k, γ²)*FT)  #(3.12)
+    """
+        Δφ′P
+    given the value of F and F′ at the Plank brane, return the error of φ′to satisfy the BC at Plank brane
+    """
+    function Δφ′P(F, F′, params)
+        φ′P = dφP(F, F′, params...)
+        return φ′P - getφ′P(F, F′, params)
+    end
     """
     dφT
     given the value of F and F′ at the TeV brane, return φ′ satisfying the BC at TeV brane
@@ -107,11 +122,17 @@ module BCs
         return -0.5λT′′(φ, l², k, γ²) * φ - 2u * ϕT * F  #(3.14)
     end
     dφT(F, F′, params) = dφT(F, F′, params...)
+    φT(FT, F′T, l², k, γ²)  = -3ϕP^2/(2u*l²*ϕ0(yₘ)) * (F′T - 2A′(yₘ, l², k, γ²)*FT)  #(3.12)
 
+    """
+        Δφ′T
+    given the value of F and F′ at the TeV brane, return the error of φ′to satisfy the BC at TeV brane
+    """
     function Δφ′T(F, F′, params)
         φ′T = dφT(F, F′, params...)
         return φ′T - getφ′T(F, F′, params)
     end
+
 
 
     # dφT(φ, F, l², k, γ²) =-0.5λT′′(φ, l², k, γ²) * φ - 2u * ϕT * F  #(3.14)
