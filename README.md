@@ -1,4 +1,6 @@
 # ModuliSpaces.jl
+> under development, not ready for use
+
 Find, understand and visualize the moduli spaces of your favorite class of objects.
 ## What is a moduli space?
 An isomorphic space of a class of objects, naively speaking.
@@ -56,7 +58,7 @@ So we can **distinguish** different classes of things by comparing their moduli 
         - Retrieve the inverse image(i.e. **the moduli space**) $X_0$ of the objects of interest $Y_0$
     - Implementation:
         - `f(x)->y`: A function that maps a point `x` in the parameter space $X$ to an object `y` in the space of all possible objects $Y$
-        - `isa(y, Y0)->{true, false}`: A function that determines whether a given object `y` belongs to `Y0` the class of interested objects $Y_0$
+        - `y \in Y0 -> {true, false}`: A function that determines whether a given object `y` belongs to `Y0` the class of interested objects $Y_0$
         - `findfirst(x0, alg=priori_dfs(f, X , x0, Y0))->X'`$\subset$`X0`: A function that scan the parameter space $X$ starting from the point $x_0$ and returns one subset $X'$ of the inverse image $X_0$ of the objects of interest $Y_0$
             - `priori_dfs(f, X, x0, Y0)->X'`:A variant of the traditional depth-first searching algorithms that incorporate different priorities for different phase space points. 
         It prioritizes the exploration of higher hierarchy phase space points, thereby optimizing the search process in hierarchical graphs.
