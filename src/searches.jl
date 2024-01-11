@@ -68,4 +68,8 @@ function priori_dfs(f::Function, X::T1, Y0, x0::T2) where {T1<:AbstractArray, T2
     return priori_dfs
 end
 
+function graded_dfs()
+    
+end
+
 end
