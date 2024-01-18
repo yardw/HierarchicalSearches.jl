@@ -1,5 +1,26 @@
 #set text(size:28pt)
 #set block()
+
+== Questions
+
+- What I want to do 
+  - to build a graph from a given manifold
+- What graph I want to build
+  - a Graph consists of simplexes as vertex and edges
+  - the graph isomorphic to the given manifold
+  - the capability to subdivide the graph to get a finer graph 
+- What functions I want to implement
+  - `search`: search the graph with a given start vertex and a given goal.
+    - `goal` can be a vertex, an edge, or a subgraph.
+      - the goal can be set with a series of conditions.
+    - `alg` supports various algorithms including `dfs`, `bfs`, etc. 
+    - `advisor` ranks given vertices(e.g. the neighbors of a vertex).
+    - `hook` will be called before or after a vertex is visited.
+      - `hook` can be used to implement `advisor`.
+  - `subdivide`
+  - `nvertex`
+  - `nedge`
+
 == Components
 
 === Manifold or SCG(Simplitical Complex Graph)
