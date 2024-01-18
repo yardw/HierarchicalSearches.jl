@@ -7,13 +7,13 @@ mutable struct FixedStack{T}
 end
 
 function push!(stack::FixedStack{T}, item::T) where {T}
-    !stack.inited && stack.inited = true
+    stack.length < length(stack.data) && stack.length += 1
     stack.data[stack.next_index] = item
     stack.next_index = mod1(stack.next_index + 1, length(stack.data))
     return stack
 end
 function push!(stack::FixedStack{T}, item::T; trushbin::T0) where {T, T0<:AbstractArray{T,1}}
-    !stack.inited && stack.inited = true
+    stack.length < length(stack.data) && stack.length += 1
     push!(trushbin, stack.data[stack.next_index])
     stack.data[stack.next_index] = item
     stack.next_index = mod1(stack.next_index + 1, length(stack.data))
@@ -21,7 +21,11 @@ function push!(stack::FixedStack{T}, item::T; trushbin::T0) where {T, T0<:Abstra
 end
 
 function pop!(stack::FixedStack{T}) where {T}
-    !stack.inited && return missing
+    if stack.length <= 0
+        @warn "trying to pop from an empty stack"
+        return nothing
+    end
+    stack.length -= 1
     stack.next_index = mod1(stack.next_index - 1, length(stack.data))
     return stack.data[stack.next_index]
 end
