@@ -1,10 +1,39 @@
 using IntervalArithmetic, IntervalRootFinding
+using StaticArrays
+cofactor(A,i,j) = (-1)^(i+j) * det(A[setdiff(1:end,i), setdiff(1:end,j)])
+function det(A)
+    @assert ndims(A) == 2 "A must be a matrix"
+    m, n = size(A)
+    if m <= 1 || n <= 1
+        return A[1,1]
+    elseif m > n
+        return sum([A[1,j] * cofactor(A,1,j) for j in axes(A,2)])
+    else
+        return sum([A[i,1] * cofactor(A,i,1) for i in axes(A,1)])
+    end
+end
+# test for cofactor
+A = [100i^2+j^2 for i in 1:4, j in 1:4]
+[cofactor(A,i,j) for i in 1:4, j in 1:4] 
+det([1 for i in 1:1, j in 1:1])
+det([1])
+det([1 2; 3 4]) == -2
+f(x) = SA[
+    x[1]^2 + x[2]^2 + x[3]^2 - 1,
+    x[1]^2 + x[3]^2 - 0.25,
+    x[1]^2 + x[3]^2 - 0.25
+]
+eq(x,i) = x[i]^2 + x[mod1(i+1, length(x))]^2 - 1
+f(x) = @SVector[ eq(x,i)  for i in 1:3]
+itvs(x::Interval...) = foldl(×, x)
+x = -2..2
+X = x × x × x
+roots(f, X)
 roots(x -> x^2 - 2x, 0..10)
 roots(x -> (x^2 - 2)^2 * (x^2 - 3), 0..10)
-using StaticArrays
 let g((x1,x2,x3)) = @SVector[
                           x1^2 + x2^2 + x3^2 - 1,
-                          x1^2 + x3^2 - 0.25,
+                        #   x1^2 + x3^2 - 0.25,
                           x1^2 + x2^2 - 4x3
                             ],
     x = 0..10, X = x × x × x
