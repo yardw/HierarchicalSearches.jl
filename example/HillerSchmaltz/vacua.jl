@@ -1,4 +1,9 @@
 using IntervalArithmetic, IntervalRootFinding
+using InteractiveUtils
+x = complex(1..2, 1..2) 
+IntervalBox(1..2,2)
+x^2 + x -1
+interval(1+1im)
 using StaticArrays
 import LinearAlgebra as la
 function cofactor(A::Matrix{T}, i::Int, j::Int) where T
