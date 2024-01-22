@@ -1,17 +1,36 @@
 using IntervalArithmetic, IntervalRootFinding
 using StaticArrays
-cofactor(A,i,j) = (-1)^(i+j) * det(A[setdiff(1:end,i), setdiff(1:end,j)])
-function det(A)
-    @assert ndims(A) == 2 "A must be a matrix"
-    m, n = size(A)
-    if m <= 1 || n <= 1
-        return A[1,1]
-    elseif m > n
-        return sum([A[1,j] * cofactor(A,1,j) for j in axes(A,2)])
-    else
-        return sum([A[i,1] * cofactor(A,i,1) for i in axes(A,1)])
-    end
+import LinearAlgebra as la
+function cofactor(A::Matrix{T}, i::Int, j::Int) where T
+    @assert 1 <= i <= size(A,1) "i must be in 1:size(A,1)"
+    @assert 1 <= j <= size(A,2) "j must be in 1:size(A,2)"
+    return (-1)^(i+j) * la.det(A[setdiff(1:end,i), setdiff(1:end,j)])
 end
+function cofactor(Re::Matrix{T}, Im::Matrix{T}, i::Int, j::Int) where T
+    @assert 1 <= i <= size(Re,1) "i must be in 1:size(A,1)"
+    @assert 1 <= j <= size(Re,2) "j must be in 1:size(A,2)"
+    x = Re + im*Im
+    return (-1)^(i+j) * la.det(x[setdiff(1:end,i), setdiff(1:end,j)]) |> reim
+end
+# function det(A)
+#     @assert ndims(A) == 2 "A must be a matrix"
+#     m, n = size(A)
+#     if m <= 1 || n <= 1
+#         return A[1,1]
+#     elseif m > n
+#         return sum([A[1,j] * cofactor(A,1,j) for j in axes(A,2)])
+#     else
+#         return sum([A[i,1] * cofactor(A,i,1) for i in axes(A,1)])
+#     end
+# end # not efficient for large matrices
+
+
+
+x = rand(50,50)
+@time det(x)
+@time la.det(x)
+@time cofactor(x,1,1)
+@time cofactor(x,zeros(50,50),1,1)
 # test for cofactor
 A = [100i^2+j^2 for i in 1:4, j in 1:4]
 [cofactor(A,i,j) for i in 1:4, j in 1:4] 
