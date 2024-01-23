@@ -18,20 +18,20 @@ module AffliatedFunctions
     using ..Consts: yₘ, u, ϕP, ϕT
     export ϕ0, A, A′, A′′, V, V′, V′′, λP′, λT′, λP′′, λT′′, W, W′, α
     #static profile
-    @inline ϕ0(  y::Number) = ϕP * (ϕT/ϕP)^(y/yₘ) #ϕ0' = -u ϕ0
-    @inline A(   y::Number, l²::Number, k::Number, γ²::Number) = k * y + l²/6 * (ϕT/ϕP)^(2y/yₘ)
-    @inline A′(  y::Number, l²::Number, k::Number, γ²::Number) = k     + l²/6 * (ϕT/ϕP)^(2y/yₘ)* (-2u)
-    @inline A′′( y::Number, l²::Number, k::Number, γ²::Number) =         l²/6 * (ϕT/ϕP)^(2y/yₘ)* 4u^2
-    @inline V′(  y::Number, l²::Number, k::Number, γ²::Number) = u*(4k + u)*ϕ0(y) - 2/3*u^2 * 2l²/ϕP^2*ϕ0(y)^3 #κ^2 = 2l²/ϕP^2
-    @inline V′′( y::Number, l²::Number, k::Number, γ²::Number) = u*(4k + u -2u*2l²*(ϕT/ϕP)^(2y/yₘ))
-    @inline λP′( φ::Number, l²::Number, k::Number, γ²::Number) = -2u * (ϕP + φ)
-    # @inline λP′( φ::Number, l²::Number, k::Number, γ²::Number) = -2u * ϕP  + 2γ² * φ # no varphi needed, ϕ≠ϕₚ
-    # @inline λP′( φ::Number, l²::Number, k::Number, γ²::Number) = -2u * ϕP * φ + 2γ² * φ
-    @inline λT′( φ::Number, l²::Number, k::Number, γ²::Number) =  2u * (ϕT + φ)
-    # @inline λT′( φ::Number, l²::Number, k::Number, γ²::Number) =  2u * ϕT  + 2γ² * φ # no varphi needed, ϕ≠ϕₜ
-    # @inline λT′( φ::Number, l²::Number, k::Number, γ²::Number) =  2u * ϕT * φ + 2γ² * φ
-    @inline λP′′(φ::Number, l²::Number, k::Number, γ²::Number) = 2γ²
-    @inline λT′′(φ::Number, l²::Number, k::Number, γ²::Number) = 2γ²
+    @inline ϕ0(  y) = ϕP * (ϕT/ϕP)^(y/yₘ) #ϕ0' = -u ϕ0
+    @inline A(   y, l², k, γ²) = k * y + l²/6 * (ϕT/ϕP)^(2y/yₘ)
+    @inline A′(  y, l², k, γ²) = k     + l²/6 * (ϕT/ϕP)^(2y/yₘ)* (-2u)
+    @inline A′′( y, l², k, γ²) =         l²/6 * (ϕT/ϕP)^(2y/yₘ)* 4u^2
+    @inline V′(  y, l², k, γ²) = u*(4k + u)*ϕ0(y) - 2/3*u^2 * 2l²/ϕP^2*ϕ0(y)^3 #κ^2 = 2l²/ϕP^2
+    @inline V′′( y, l², k, γ²) = u*(4k + u -2u*2l²*(ϕT/ϕP)^(2y/yₘ))
+    @inline λP′( φ, l², k, γ²) = -2u * (ϕP + φ)
+    # @inline λP′( φ, l², k, γ²) = -2u * ϕP  + 2γ² * φ # no varphi needed, ϕ≠ϕₚ
+    # @inline λP′( φ, l², k, γ²) = -2u * ϕP * φ + 2γ² * φ
+    @inline λT′( φ, l², k, γ²) =  2u * (ϕT + φ)
+    # @inline λT′( φ, l², k, γ²) =  2u * ϕT  + 2γ² * φ # no varphi needed, ϕ≠ϕₜ
+    # @inline λT′( φ, l², k, γ²) =  2u * ϕT * φ + 2γ² * φ
+    @inline λP′′(φ, l², k, γ²) = 2γ²
+    @inline λT′′(φ, l², k, γ²) = 2γ²
 
     # superpotential
     W(ϕ, κ, k, u) = 6k/κ^2  - u*ϕ^2
