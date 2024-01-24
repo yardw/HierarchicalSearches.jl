@@ -149,15 +149,21 @@ end
 prob = searchYM(1e-3, 1e1)
 
 n = 40
-X = ones(n) * exp10.(range(-3, stop=2, length=n))';
-Y = exp10.(range(-8, stop=0, length=n)) * ones(n)';
+X = exp10.(range(-10, stop=2, length=n))*ones(n)';
+Y = ones(n)*exp10.(range(-7, stop=1, length=n))';
 Z = prob.(X,Y) 
 findfirst(x-> (x.>0) == (false,false), Z)
 findfirst(x-> (x.>0) == (false,true), Z)
 findfirst(x-> (x.>0) == (true,false), Z)
 findfirst(x-> (x.>0) == (true,true), Z)
-
-
+Z0 = map(Z) do (z1, z2)
+    (sign(z1) - sign(z2))/2
+end
+contourf(Z0)
+idx = CartesianIndex(33, 16)
+X[idx], Y[idx], Z[idx].>0
+idx = CartesianIndex(1, 16)
+X[idx], Y[idx], Z[idx].>0
 
 using Plots
 
