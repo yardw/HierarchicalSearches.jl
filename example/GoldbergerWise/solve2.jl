@@ -1,6 +1,7 @@
 using DifferentialEquations: ODESolution, ODEProblem, SecondOrderODEProblem, solve, ImplicitEuler
 using Plots
 include("convolve.jl")
+include("storage.jl")
 include("eom.jl")
 using .GoldbergerWiseEoM.EoMs
 import .GoldbergerWiseEoM.Consts: yₘ, k, M_IR, γ²₀, u
