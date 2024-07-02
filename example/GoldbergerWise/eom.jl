@@ -10,7 +10,7 @@ module Consts
     # l² = kappa^2 * phiP^2 / 2 reflects the strength of backreaction
     
     ### [m]=1
-    const M_Pl = 1.0 #Plank mass
+    const M_Pl = 1.0 #4d Plank mass (1 = M_4d^2 ~ M_5d^3/k)
     const u  = 1.0e-1 #  u = log(ϕT / ϕP)/yₘ, this parameter should be fine-tuned to satisfy k*ym ~ O(50), but this causes instability by inrtoducing such a big hierarchy in numerical computation. Therefore here k*ym is set at O(10)
     const k = 37u #pp13 below eq(6.6)
     const M_IR = exp(-k*yₘ) * M_Pl #IR brane scale;(with M_Pl=1)
